@@ -1,0 +1,465 @@
+{
+  "name": "fb project",
+  "nodes": [
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.query[\"hub.challenge\"] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [-496, -340],
+      "id": "7e52b61f-ea4c-45a7-a407-fb3af3705a5b",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "multipleMethods": true,
+        "path": "facebook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [-720, -128],
+      "id": "f8745b4f-208c-4d3d-a40c-d1c50f42494a",
+      "name": "Webhook",
+      "webhookId": "78b9d84e-e18b-4ab8-b71e-6a50ae5fa06a"
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "Sender Id",
+              "stringValue": "={{ $json.body.entry[0].messaging[0].sender.id }}"
+            },
+            {
+              "name": "Message",
+              "stringValue": "={{ $json.body.entry[0].messaging[0].message.text }}"
+            },
+            {
+              "name": "Photo",
+              "stringValue": "={{ $json.body.entry[0].messaging[0].message.attachments[0].payload.url }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [-496, -128],
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "url": "=https://graph.facebook.com/v21.0/{{ $json['Sender Id'] }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "access_token",
+              "value": "EAAcLDZCqI8qEBQoquMR2MIujylcZAy1veD43BaPO7VJkHzfcqRvGbbofIQGLuPOOcZASLjd4XNwWxg9gmwuNGMXHOtpfH0m4mEQsp9NbYPjFFr5EZActyCKeljw3wHWxWxqQ9ZCOdJ779rTcPyh6R8zfVUK4uHSg8oK8cuxKYaHdquUYtBZBi5rxxOvqJZAZBnC4p9lSqwZDZD"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [-272, -260],
+      "id": "08e5b3fc-2594-4201-95d4-dbd41bdab57e",
+      "name": "get user details"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1K-I0-2Ksvy0s0wJWd-YTjEzs4IR2fuhd22fsbKhGhII",
+          "mode": "list",
+          "cachedResultName": "FB PROJECT",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1K-I0-2Ksvy0s0wJWd-YTjEzs4IR2fuhd22fsbKhGhII/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1K-I0-2Ksvy0s0wJWd-YTjEzs4IR2fuhd22fsbKhGhII/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [-48, -260],
+      "id": "c24b5474-8d33-4662-9ec4-134251f1d28d",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "xC2PMlYgbz5DLUQ7",
+          "name": "Google Sheets account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "text": "=Analyse this product image from our catalogue precisely.\nProduct details from our catalogue sheet:\nName: {{ $json.name }}\nReference: {{ $json.reference }}\nPrice: {{ $json.price }}\nDescribe the product in detail (color, type, style, fabric if visible, design elements).",
+        "imageUrls": "={{ $json.url }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [176, -260],
+      "id": "63f6f452-f825-4fbb-aa43-f49d68d58c7c",
+      "name": "our catalogue",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "q6ph0zQ4rZlUtexD",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Edit Fields').item.json.Photo }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [-272, -32],
+      "id": "4bfba73b-e3ec-4837-bb28-d27fd5c5cd01",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first();\nconst binaryData = item.binary.data.data;\nconst mimeType = item.binary.data.mimeType;\n\nreturn [{\n  json: {\n    base64Image: binaryData,\n    mimeType: mimeType\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-48, -32],
+      "id": "c3efa564-20db-4cff-9369-7668f7e18f96",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=AIzaSyBOcnK0mATKFDc6Tl6gK_LPFISI27OCoMQ",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [{\n    \"parts\": [\n      {\n        \"text\": \"Analyse this product photo precisely. It is a photo sent by a customer, possibly a screenshot from Facebook, Instagram, or another platform. Describe the product in detail (type, color, style, design elements, fabric if visible).\"\n      },\n      {\n        \"inline_data\": {\n          \"mime_type\": \"{{ $json.mimeType }}\",\n          \"data\": \"{{ $json.base64Image }}\"\n        }\n      }\n    ]\n  }]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [176, -32],
+      "id": "d285b54e-fc22-4e1a-ae4b-719fb12888a7",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [416, -144],
+      "id": "b7c8d9e0-f1a2-3456-bcde-f78901234567",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "text": "=Compare these two product analyses and determine if they are the same product.\n\n--- CATALOGUE PRODUCT ---\nName: {{ $('Get row(s) in sheet').item.json.name }}\nReference: {{ $('Get row(s) in sheet').item.json.reference }}\nPrice: {{ $('Get row(s) in sheet').item.json.price }}\nCatalogue Analysis: {{ $json.text }}\n\n--- CUSTOMER PHOTO ANALYSIS ---\n{{ $json.candidates[0].content.parts[0].text }}\n\nAre these the same product? Consider color, style, type, and design.\n\nIf YES, reply ONLY with:\nName: [product name]\nReference: [reference]\nPrice: [price]\n\nIf NO, reply ONLY with:\nsorry it's not the same product",
+        "imageUrls": "={{ $('Get row(s) in sheet').item.json.url }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [656, -144],
+      "id": "ee74452f-1b64-4aa3-9944-6b643211620d",
+      "name": "comparing images",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "q6ph0zQ4rZlUtexD",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Customer message: {{ $('Edit Fields').item.json.Message }}\n\nProduct identified from image: {{ $json.text }}",
+        "options": {
+          "systemMessage": "You are a helpful assistant.\nYou will welcome the customer and tell him the price of the product and ask him for his full name, address, and phone number if he wants to buy the product.\nAll conversation must be in Arabic (Tunisian dialect).\nThe customer might write with Latin letters but the language is Tunisian.\nThe customer might not start the conversation by asking directly about the price."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [896, -144],
+      "id": "ea309fcc-4497-4353-8dc1-c90e8d1bc3bb",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Edit Fields').item.json['Sender Id'] }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [1024, 80],
+      "id": "bfed5b9e-08ea-4f0a-bb29-56f04956c9aa",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [896, 80],
+      "id": "8ca75fc1-832d-4e91-a304-14ade3704c17",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "hcKY9ueXAHDFa7SL",
+          "name": "Groq account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v19.0/me/messages",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "recipient",
+              "value": "={\"id\":\"{{ $('Edit Fields').item.json['Sender Id'] }}\"}"
+            },
+            {
+              "name": "message",
+              "value": "={\"text\":\"{{ $json.output }}\"}"
+            },
+            {
+              "name": "access_token",
+              "value": "EAAcLDZCqI8qEBQoquMR2MIujylcZAy1veD43BaPO7VJkHzfcqRvGbbofIQGLuPOOcZASLjd4XNwWxg9gmwuNGMXHOtpfH0m4mEQsp9NbYPjFFr5EZActyCKeljw3wHWxWxqQ9ZCOdJ779rTcPyh6R8zfVUK4uHSg8oK8cuxKYaHdquUYtBZBi5rxxOvqJZAZBnC4p9lSqwZDZD"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [1136, -144],
+      "id": "693b151a-98a4-48a4-8e62-6bbc54db9b0a",
+      "name": "send reply to Facebook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "get user details",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get user details": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "our catalogue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "our catalogue": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "comparing images",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "comparing images": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "send reply to Facebook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "timezone": "Africa/Tunis"
+  },
+  "versionId": "a1eef0cd-4e91-4830-8465-2f114af92fd9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3ed53df450e278b80a645063fc77dc8f3d5ac6975442bd5aac7f89e9413b344a"
+  },
+  "id": "sXXuSpaPAALM79oA",
+  "tags": []
+}
