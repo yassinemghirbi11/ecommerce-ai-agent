@@ -1,0 +1,643 @@
+{
+  "name": "fb final one",
+  "nodes": [
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.query[\"hub.challenge\"] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "d85ea429-b921-4ce7-bc57-a2eff8c6d49d",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "multipleMethods": true,
+        "path": "facebook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -304,
+        64
+      ],
+      "id": "77b3fde1-2e3b-4ac2-9fa6-3056a3b18afb",
+      "name": "Webhook",
+      "webhookId": "78b9d84e-e18b-4ab8-b71e-6a50ae5fa06a",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "sender",
+              "stringValue": "={{ $json.body.entry[0].messaging[0].sender.id }}"
+            },
+            {
+              "name": "message",
+              "stringValue": "={{ $json.body.entry[0].messaging[0].message?.text ?? \"\" }}"
+            },
+            {
+              "name": "photo",
+              "stringValue": "={{ $json.body.entry[0].messaging[0].message?.attachments?.[0]?.payload?.url ?? \"\" }}"
+            }
+          ]
+        },
+        "include": "selected",
+        "options": {}
+      },
+      "id": "3be10c06-d390-475f-81a7-2e22d6ed1664",
+      "name": "Edit Fields1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        -128,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.photo }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "6795b62c-ad95-4680-9e87-769c4b0451e0",
+      "name": "Download Image",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        720,
+        416
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first(); return [{json:{base64:item.binary.data.data,mime:item.binary.data.mimeType}}];"
+      },
+      "id": "615fbbf4-eba5-44d0-946b-973c0484e50d",
+      "name": "To Base64",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        416
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=AIzaSyBrODapi84U0W-lAJHP5MuRLd8aVYEZCyo",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"contents\":[{\"parts\":[{\"text\":\"Describe this product\"},{\"inline_data\":{\"mime_type\":\"{{$json.mime}}\",\"data\":\"{{$json.base64}}\"}}]}]}",
+        "options": {}
+      },
+      "id": "19eaab96-b37c-437e-baf3-bf046519555c",
+      "name": "Analyze Image",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        1056,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1K-I0-2Ksvy0s0wJWd-YTjEzs4IR2fuhd22fsbKhGhII",
+          "mode": "list",
+          "cachedResultName": "FB PROJECT",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1K-I0-2Ksvy0s0wJWd-YTjEzs4IR2fuhd22fsbKhGhII/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1K-I0-2Ksvy0s0wJWd-YTjEzs4IR2fuhd22fsbKhGhII/edit#gid=0"
+        },
+        "options": {}
+      },
+      "id": "e893f0b7-6200-49bd-a2cc-a8c031423bb6",
+      "name": "Get Products",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        1296,
+        640
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "xC2PMlYgbz5DLUQ7",
+          "name": "Google Sheets account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v19.0/me/messages",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "access_token",
+              "value": "EAAcLDZCqI8qEBRLHqPRYZADxL5LXsCFcUGyGa1VY4lBMSeB5AiS6KJ3zrDRJKXLnlZA8Op57zUDObb5nh6b58vWq0vJg9RZCpMKkmEhirowI3GBVnatKK4IZCJQhOSWVNA98Fx8kFARDW2XEFtxQLLp8HkbLFIUP24NlnVAVQNjxBZBumd1ewKdcHZAr8Ee9xRezJ1YOAZDZD"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{\n  {\n    \"recipient\": {\n      \"id\": $(\"Edit Fields1\").item.json.sender\n    },\n    \"message\": {\n      \"text\": $json.output\n    }\n  }\n}}",
+        "options": {}
+      },
+      "id": "8f53bb7b-df14-4cc8-9883-731cfeced3c1",
+      "name": "Send Message",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        2432,
+        384
+      ],
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-20b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        1952,
+        624
+      ],
+      "id": "5b61a277-ca0f-4b0b-961a-88de07ca5e48",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "hcKY9ueXAHDFa7SL",
+          "name": "Groq account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Edit Fields1').item.json.sender }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        2064,
+        640
+      ],
+      "id": "0bde55f7-a54c-4f6f-a773-ff4c8f3bcb06",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c6d74ecb-9de4-4ad0-a90f-dabcb5a24fcb",
+              "leftValue": "={{ $json.message }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "500379b0-63a6-47b7-afa1-eb0b4d6926b2",
+              "leftValue": "={{ $json.photo }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        80,
+        384
+      ],
+      "id": "db03d925-5d20-4d04-8756-a64cdb256fa5",
+      "name": "If2"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        320,
+        576
+      ],
+      "id": "af1da9e1-a981-480d-9b47-acfa939a28ae",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e420a81a-920f-4cb1-a448-5c0932d110cb",
+              "leftValue": "={{ $json.photo }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        384,
+        448
+      ],
+      "id": "f64c5b11-89bd-4ef0-8fce-6702855c0e47",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "userPrompt",
+              "stringValue": "={{ ($(\"Edit Fields1\").item.json.message ? \"رسالة الحريف: \" + $(\"Edit Fields1\").item.json.message + \"\\n\" : \"\") + ($(\"Analyze Image\").isExecuted ? \"وصف الصورة التي أرسلها الحريف: \" + $(\"Analyze Image\").item.json.candidates[0].content.parts[0].text + \"\\n\" : \"\") }}"
+            },
+            {
+              "name": "productList",
+              "stringValue": "=={{ $json.products.map(p => p.Name + \" - \" + p[\"Price (DT)\"] + \" DT\").join(\"\\n\") }}"
+            },
+            {
+              "name": "sender",
+              "stringValue": "={{ $('Edit Fields1').item.json.sender }}"
+            }
+          ]
+        },
+        "include": "selected",
+        "options": {}
+      },
+      "id": "f800d47a-f6f0-4d7a-b589-d4f0c861ba10",
+      "name": "Prepare Prompt",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        1776,
+        384
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.userPrompt }}",
+        "options": {
+          "systemMessage": "=أنت مساعد مبيعات محترف يتكلم باللهجة التونسية الدارجة فقط.\n\n## ردود التحية\n- إذا سلّم عليك الحريف بأي شكل كان (سلام، آسلامة، bonjour، hello، مرحبا...) رد دائماً بـ: \"وعليكم السلام، شنوا تحب نعاونك؟\"\n-  ترد على الشكر بجمل مثل \"عفواً\" أو \"شكراً\"   عندك حاجة أخرى؟\"\n- لا تقل أبداً \"شكراً لتواصلك\" أو أي جملة رسمية\n\n## قائمة المنتجات\n{{ $('Prepare Prompt').item.json.productList }}\n\n## قواعد الردود\n- تكلم باللهجة التونسية الدارجة دائماً، لا تخلط مع الفصحى أو الفرنسية\n- اجعل ردودك قصيرة ومباشرة، جملة أو جملتين بالأكثر\n- لا تذكر أسماء منتجات أو أسعار خارج القائمة أعلاه\n- إذا سأل عن منتج مش موجود في القائمة قلو: \"هذا المنتج ما عندناش، شنوا تحب من قائمتنا؟\"\n- إذا أرسل صورة، حدد المنتج من الوصف وأعطه السعر مباشرة\n-تاكد من ان الحريف قدم لك معلومات الكافية عند الشراء  \n-اذا لم يدم لك معلوماتو لا تقل له سيتم الاتصال بك لاحقا\n\n## مسار الطلب\n1. الحريف يختار المنتج\n2. أكد اسم المنتج وسعره\n3. اطلب: الاسم الكامل، العنوان، ورقم الهاتف — كل واحد على حدة لا تطلبهم كلهم مرة واحدة\n4. بعد ما تجمع المعلومات قلو: \" سنتصل بك باش نأكدو الطلبية\"\n\n## ممنوع تماماً\n- لا تشكر الحريف أو تمدحه\n- لا تقدم معلومات خارج القائمة\n- لا تستخدم هذه الرموز: & ~ \" # ' { ( [ - | ` \\ _ ç ^ à @ ) ] = } ; / ! § % * ¤ £ $\n- لا تذكر أنك روبوت أو ذكاء اصطناعي"
+        }
+      },
+      "id": "6f593ba8-76fc-493b-9906-69af7551c0b3",
+      "name": "AI Reply",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        2016,
+        384
+      ]
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "products",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1504,
+        640
+      ],
+      "id": "23ec4265-0d83-4394-ab5a-9361c5399623",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1ZIVS9z945k1d_nPmgoFKQMBAffv-rTs0a8juFdYfMYU",
+          "mode": "list",
+          "cachedResultName": "client_sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ZIVS9z945k1d_nPmgoFKQMBAffv-rTs0a8juFdYfMYU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ZIVS9z945k1d_nPmgoFKQMBAffv-rTs0a8juFdYfMYU/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('name', ``, 'string') }}",
+            "numtel": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('numtel', ``, 'string') }}",
+            "produit": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('produit', ``, 'string') }}",
+            "adresse": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('adresse', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "numtel",
+              "displayName": "numtel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "produit",
+              "displayName": "produit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "adresse",
+              "displayName": "adresse",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        2208,
+        624
+      ],
+      "id": "dfdeebf9-fac2-446b-b411-a88b4703b368",
+      "name": "Append row in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "xC2PMlYgbz5DLUQ7",
+          "name": "Google Sheets account 3"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Download Image",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Products",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Image": {
+      "main": [
+        [
+          {
+            "node": "To Base64",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "To Base64": {
+      "main": [
+        [
+          {
+            "node": "Analyze Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Image": {
+      "main": [
+        [
+          {
+            "node": "Get Products",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Products": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Prompt": {
+      "main": [
+        [
+          {
+            "node": "AI Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Reply": {
+      "main": [
+        [
+          {
+            "node": "Send Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Reply",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Reply",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Prepare Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Reply",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "59c24c05-b038-4fc1-82ea-9ecf1cec3bf0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3ed53df450e278b80a645063fc77dc8f3d5ac6975442bd5aac7f89e9413b344a"
+  },
+  "id": "PEgFwv9k0YxTqj0r",
+  "tags": []
+}
