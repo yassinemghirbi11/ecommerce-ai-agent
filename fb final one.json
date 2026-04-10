@@ -100,7 +100,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=AIzaSyBrODapi84U0W-lAJHP5MuRLd8aVYEZCyo",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=YOUR_API_KEY",
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={\"contents\":[{\"parts\":[{\"text\":\"Describe this product\"},{\"inline_data\":{\"mime_type\":\"{{$json.mime}}\",\"data\":\"{{$json.base64}}\"}}]}]}",
@@ -143,7 +143,7 @@
       ],
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "xC2PMlYgbz5DLUQ7",
+          "id": "ID",
           "name": "Google Sheets account 3"
         }
       }
@@ -157,7 +157,7 @@
           "parameters": [
             {
               "name": "access_token",
-              "value": "EAAcLDZCqI8qEBRLHqPRYZADxL5LXsCFcUGyGa1VY4lBMSeB5AiS6KJ3zrDRJKXLnlZA8Op57zUDObb5nh6b58vWq0vJg9RZCpMKkmEhirowI3GBVnatKK4IZCJQhOSWVNA98Fx8kFARDW2XEFtxQLLp8HkbLFIUP24NlnVAVQNjxBZBumd1ewKdcHZAr8Ee9xRezJ1YOAZDZD"
+              "value": "PAGE ACCESS TOKEN"
             }
           ]
         },
@@ -191,7 +191,7 @@
       "name": "Groq Chat Model",
       "credentials": {
         "groqApi": {
-          "id": "hcKY9ueXAHDFa7SL",
+          "id": "ID",
           "name": "Groq account 3"
         }
       }
@@ -445,7 +445,7 @@
       "name": "Append row in sheet in Google Sheets",
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "xC2PMlYgbz5DLUQ7",
+          "id": "ID",
           "name": "Google Sheets account 3"
         }
       }
